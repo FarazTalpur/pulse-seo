@@ -1,13 +1,5 @@
-import { NextResponse } from "next/server";
-import { readMock } from "@/lib/mock";
-
-type Summary = {
-  version: string;
-  updated: string;
-  notes: string;
-};
+import { proxyGet } from "@/lib/server-api";
 
 export async function GET() {
-  const data = await readMock<Summary>("summary.json");
-  return NextResponse.json(data);
+  return proxyGet("/v1/summary");
 }

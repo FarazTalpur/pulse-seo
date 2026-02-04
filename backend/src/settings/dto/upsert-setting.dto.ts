@@ -2,8 +2,8 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpsertSettingDto {
   @IsString()
-  @IsNotEmpty()
-  organizationId: string;
+  @IsOptional()
+  organizationId?: string;
 
   @IsString()
   @IsNotEmpty()

@@ -1,11 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { MockDataService } from '../shared/mock-data.service';
+import { ConfigService } from '@nestjs/config';
+import { requireOrganizationId } from '../common/utils/require-organization';
+import { formatDateLabel } from '../common/utils/formatting';
 
 @Injectable()
 export class SummaryService {
-  constructor(private readonly mockDataService: MockDataService) {}
+  constructor(private readonly configService: ConfigService) {}
 
-  getSummary() {
-    return this.mockDataService.readMockData('summary');
+  getSummary(organizationId: string | null) {
+    requireOrganizationId(organizationId);
+    const version =
+      this.configService.get<string>('APP_VERSION') ??
+      process.env.npm_package_version ??
+      '0.1.0';
+    return {
+      version,
+      updated: formatDateLabel(new Date()),
+      notes: 'Live data backed by the production database.',
+    };
   }
 }

@@ -2,12 +2,21 @@
 
 import useSWR from "swr";
 import { fetchClientJson } from "@/lib/client-api";
+import { useSession } from "next-auth/react";
 
-type Fetcher<T> = () => Promise<T>;
+type Fetcher<T> = (accessToken?: string) => Promise<T>;
 
 export function useApi<T>(key: string, fetcher: Fetcher<T>) {
-  const { data, error, isLoading } = useSWR<T>(key, fetcher);
-  return { data, error, isLoading };
+  const { data: session, status } = useSession();
+  const accessToken = session?.accessToken;
+  const shouldFetch = status === "authenticated" && !!accessToken;
+
+  const { data, error, isLoading } = useSWR<T>(
+    shouldFetch ? [key, accessToken] : null,
+    ([url, token]) => fetcher(token)
+  );
+
+  return { data, error, isLoading: status === "loading" || isLoading };
 }
 
 export type DashboardData = {
@@ -93,44 +102,46 @@ export type SummaryData = {
 };
 
 export const useDashboard = () =>
-  useApi<DashboardData>("/v1/dashboard", () =>
-    fetchClientJson<DashboardData>("/v1/dashboard")
+  useApi<DashboardData>("/v1/dashboard", (token) =>
+    fetchClientJson<DashboardData>("/v1/dashboard", token)
   );
 
 export const useAudits = () =>
-  useApi<AuditsData>("/v1/audits", () =>
-    fetchClientJson<AuditsData>("/v1/audits")
+  useApi<AuditsData>("/v1/audits", (token) =>
+    fetchClientJson<AuditsData>("/v1/audits", token)
   );
 
 export const useBriefs = () =>
-  useApi<BriefsData>("/v1/briefs", () =>
-    fetchClientJson<BriefsData>("/v1/briefs")
+  useApi<BriefsData>("/v1/briefs", (token) =>
+    fetchClientJson<BriefsData>("/v1/briefs", token)
   );
 
 export const useReports = () =>
-  useApi<ReportsData>("/v1/reports", () =>
-    fetchClientJson<ReportsData>("/v1/reports")
+  useApi<ReportsData>("/v1/reports", (token) =>
+    fetchClientJson<ReportsData>("/v1/reports", token)
   );
 
 export const useAutomations = () =>
-  useApi<AutomationsData>("/v1/automations", () =>
-    fetchClientJson<AutomationsData>("/v1/automations")
+  useApi<AutomationsData>("/v1/automations", (token) =>
+    fetchClientJson<AutomationsData>("/v1/automations", token)
   );
 
 export const useIntegrations = () =>
-  useApi<IntegrationsData>("/v1/integrations", () =>
-    fetchClientJson<IntegrationsData>("/v1/integrations")
+  useApi<IntegrationsData>("/v1/integrations", (token) =>
+    fetchClientJson<IntegrationsData>("/v1/integrations", token)
   );
 
 export const useSettings = () =>
-  useApi<SettingsData>("/v1/settings", () =>
-    fetchClientJson<SettingsData>("/v1/settings")
+  useApi<SettingsData>("/v1/settings", (token) =>
+    fetchClientJson<SettingsData>("/v1/settings", token)
   );
 
 export const useTeam = () =>
-  useApi<TeamData>("/v1/team", () => fetchClientJson<TeamData>("/v1/team"));
+  useApi<TeamData>("/v1/team", (token) =>
+    fetchClientJson<TeamData>("/v1/team", token)
+  );
 
 export const useSummary = () =>
-  useApi<SummaryData>("/v1/summary", () =>
-    fetchClientJson<SummaryData>("/v1/summary")
+  useApi<SummaryData>("/v1/summary", (token) =>
+    fetchClientJson<SummaryData>("/v1/summary", token)
   );

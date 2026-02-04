@@ -2,8 +2,8 @@ import { IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateIntegrationDto {
   @IsString()
-  @IsNotEmpty()
-  organizationId: string;
+  @IsOptional()
+  organizationId?: string;
 
   @IsString()
   @IsNotEmpty()

@@ -2,8 +2,8 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateReportDto {
   @IsString()
-  @IsNotEmpty()
-  organizationId: string;
+  @IsOptional()
+  organizationId?: string;
 
   @IsString()
   @IsNotEmpty()

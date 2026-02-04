@@ -17,15 +17,23 @@ export default function AutomationsPage() {
       alert("No organization available for this account.");
       return;
     }
+    if (!session.accessToken) {
+      alert("No access token available. Please sign in again.");
+      return;
+    }
 
-    await postClientJson("/v1/automations", {
-      organizationId: session.user.organizationId,
-      name: "New automation",
-      trigger: "0 0 * * 1",
-      triggerType: "schedule",
-      status: "active",
-      owner: session.user.name ?? "Admin",
-    });
+    await postClientJson(
+      "/v1/automations",
+      {
+        organizationId: session.user.organizationId,
+        name: "New automation",
+        trigger: "0 0 * * 1",
+        triggerType: "schedule",
+        status: "active",
+        owner: session.user.name ?? "Admin",
+      },
+      session.accessToken
+    );
 
     await mutate("/v1/automations");
   };

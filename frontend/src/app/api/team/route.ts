@@ -1,12 +1,5 @@
-import { NextResponse } from "next/server";
-import { readMock } from "@/lib/mock";
-
-type TeamData = {
-  team: Array<{ name: string; role: string; status: string }>;
-  roles: string[];
-};
+import { proxyGet } from "@/lib/server-api";
 
 export async function GET() {
-  const data = await readMock<TeamData>("team.json");
-  return NextResponse.json(data);
+  return proxyGet("/v1/team");
 }

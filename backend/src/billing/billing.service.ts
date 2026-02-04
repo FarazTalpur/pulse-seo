@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
+import { requireOrganizationId } from '../common/utils/require-organization';
 
 @Injectable()
 export class BillingService {
   constructor(private readonly prisma: PrismaService) {}
 
-  getSubscription(organizationId: string) {
+  getSubscription(organizationId: string | null) {
+    const orgId = requireOrganizationId(organizationId);
     return this.prisma.organization.findUnique({
-      where: { id: organizationId },
+      where: { id: orgId },
       select: {
         id: true,
         name: true,
@@ -19,9 +21,13 @@ export class BillingService {
     });
   }
 
-  updateSubscription(dto: UpdateSubscriptionDto) {
+  updateSubscription(dto: UpdateSubscriptionDto, organizationId: string | null) {
+    const orgId = requireOrganizationId(organizationId);
+    if (dto.organizationId && dto.organizationId !== orgId) {
+      throw new ForbiddenException('Organization mismatch');
+    }
     return this.prisma.organization.update({
-      where: { id: dto.organizationId },
+      where: { id: orgId },
       data: {
         stripeCustomerId: dto.stripeCustomerId,
         stripeSubscriptionId: dto.stripeSubscriptionId,
@@ -30,10 +36,11 @@ export class BillingService {
     });
   }
 
-  createPortalSession(organizationId: string) {
+  createPortalSession(organizationId: string | null) {
+    const orgId = requireOrganizationId(organizationId);
     return {
-      organizationId,
-      url: `https://billing.pulseseo.local/portal/${organizationId}`,
+      organizationId: orgId,
+      url: `https://billing.pulseseo.local/portal/${orgId}`,
     };
   }
 }

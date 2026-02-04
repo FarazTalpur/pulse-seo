@@ -30,9 +30,11 @@ This document captures what has been implemented and what is still pending so wo
   - `GET /v1/auth/me` (JWT protected).
   - JWT strategy + guard.
 - Uses `JWT_SECRET` + `JWT_EXPIRES_IN`.
+- Mutation endpoints now require JWT auth and enforce org scope from the token.
+- Role-based guards now gate mutation endpoints (admin vs analyst).
 
-### Backend Read APIs (Mock-backed)
-All these read from `backend/mock-data/*.json` via `MockDataService`:
+### Backend Read APIs (Prisma-backed)
+All core read endpoints now query Prisma with org scoping:
 - `GET /v1/dashboard`
 - `GET /v1/audits`
 - `GET /v1/briefs`
@@ -49,7 +51,7 @@ All these read from `backend/mock-data/*.json` via `MockDataService`:
 - Automations: `POST/PATCH/DELETE /v1/automations` + `POST /v1/automations/:id/run`
 - Team: `POST/PATCH/DELETE /v1/team` (invite/update role/remove)
 - Settings: `PATCH /v1/settings` (upsert org/user setting)
-- Reports: `POST /v1/reports`, `POST /v1/reports/:id/generate`, `DELETE /v1/reports/:id`
+- Reports: `POST /v1/reports`, `POST /v1/reports/:id/generate`, `GET /v1/reports/:id/download`, `DELETE /v1/reports/:id`
 - Billing: `GET/POST /v1/billing/subscription`, `POST /v1/billing/portal`
 
 ### Integrations & Automation Engine (Scaffold)
@@ -69,11 +71,13 @@ All these read from `backend/mock-data/*.json` via `MockDataService`:
 - Client data hooks now call backend:
   - `frontend/src/lib/hooks.ts` switched to `/v1/*` endpoints.
   - `frontend/src/lib/client-api.ts` uses `NEXT_PUBLIC_BACKEND_URL`.
+- Mutation requests now include `Authorization: Bearer` when a session token is available.
 - Basic UI actions wired (prompt-driven):
   - `New brief` → `POST /v1/briefs`
   - `New automation` → `POST /v1/automations`
   - `Invite teammate` → `POST /v1/team`
   - `Save changes` (Settings) → `PATCH /v1/settings`
+- Frontend `.env.example` added for `BACKEND_URL` + `NEXT_PUBLIC_BACKEND_URL`.
 
 ### Testing & Observability
 - Backend:
@@ -82,6 +86,10 @@ All these read from `backend/mock-data/*.json` via `MockDataService`:
 - Frontend:
   - Vitest setup (`frontend/vitest.config.ts`, `src/setupTests.ts`, sample test).
   - Playwright config + simple login page test.
+- CI: GitHub Actions workflow added for backend tests + frontend lint/test/build.
+
+### Docker
+- Added production Dockerfiles for backend and frontend.
 
 ## Pending / TODO (Detailed)
 
@@ -91,16 +99,13 @@ All these read from `backend/mock-data/*.json` via `MockDataService`:
 - Optional: seed mock domain entities (audits, briefs, reports) to align with UI cards.
 
 ### 2. Auth Hardening & Access Control
-- Add guards for org/project scoping and role checks in NestJS controllers.
-- Ensure all mutation endpoints require JWT auth.
-- Enforce `organizationId` based on JWT context rather than client-supplied.
-- Add `/v1/auth/refresh` if you want token refresh in NextAuth.
+- [x] Require JWT auth on mutation endpoints.
+- [x] Enforce `organizationId` from JWT context on mutations + org/project scoping.
+- [x] Add role checks in NestJS controllers (admin vs analyst).
+- [ ] Add `/v1/auth/refresh` if you want token refresh in NextAuth.
 
 ### 3. Replace Mock Read APIs with Prisma
-Currently all reads for UI come from JSON fixtures. Replace with Prisma queries:
-- `/v1/dashboard` should aggregate from real tables.
-- `/v1/audits`, `/v1/briefs`, `/v1/reports`, etc. should query database.
-- Keep mock fixtures for dev reference if useful.
+- [x] All read APIs now query Prisma with org scoping.
 
 ### 4. Real Integrations (GSC + GA4)
 - Implement OAuth flow:
@@ -117,9 +122,10 @@ Currently all reads for UI come from JSON fixtures. Replace with Prisma queries:
 - UI for runs history (not yet wired).
 
 ### 6. Reporting (Real Exports)
-- Replace report generation stub with actual PDF/CSV outputs.
-- Decide on file storage (local/S3) + add `fileUrl` storage.
-- Wire `/reports` download UI to real file URLs.
+- [x] CSV export generation + `/v1/reports/:id/download` endpoint.
+- [ ] Add PDF export support.
+- [ ] Decide on file storage (local/S3) + add `fileUrl` storage if needed.
+- [ ] Wire `/reports` download UI to real file URLs.
 
 ### 7. Billing (Stripe)
 - Implement Stripe customer creation + webhook handler.
@@ -133,9 +139,9 @@ Currently all reads for UI come from JSON fixtures. Replace with Prisma queries:
 - Implement filtering/sorting/pagination across data tables.
 
 ### 9. CI/CD + Env Management
-- Add `.env.example` for frontend (currently only local).
-- Add deployment scripts / GH Actions.
-- Add Dockerfiles for production if desired (only compose for infra exists).
+- [x] Add `.env.example` for frontend (currently only local).
+- [x] Add GitHub Actions workflow for tests/builds.
+- [x] Add Dockerfiles for production (backend + frontend).
 
 ### 10. Additional Tests
 - Add tests for auth, CRUD endpoints.
@@ -158,6 +164,7 @@ Currently all reads for UI come from JSON fixtures. Replace with Prisma queries:
    - `npm run dev`
 
 ## Notes / Known Caveats
-- JWT auth is not yet enforced on all endpoints; add guards before production.
+- JWT auth is enforced on all core read + mutation endpoints; reads now query Prisma.
+- Role-based checks are enforced on mutation endpoints.
 - Integrations and billing are placeholders; use for scaffolding only.
 - The Prisma schema is broad; some tables may not be used until reads are wired.
