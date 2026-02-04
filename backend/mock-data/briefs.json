@@ -1,0 +1,46 @@
+{
+  "briefs": [
+    {
+      "title": "Enterprise SEO automation",
+      "type": "Product-led",
+      "status": "Draft ready",
+      "owner": "Ravi",
+      "due": "Today"
+    },
+    {
+      "title": "Multi-location SEO checklist",
+      "type": "How-to",
+      "status": "Researching SERP",
+      "owner": "Mia",
+      "due": "Tomorrow"
+    },
+    {
+      "title": "Content decay recovery",
+      "type": "Guide",
+      "status": "Queued",
+      "owner": "Jordan",
+      "due": "Thursday"
+    },
+    {
+      "title": "AI SEO audit workflow",
+      "type": "Pillar",
+      "status": "Needs review",
+      "owner": "Alex",
+      "due": "Friday"
+    }
+  ],
+  "playbooks": [
+    {
+      "name": "SERP Intent Map",
+      "desc": "Auto-capture intent, PAA topics, and SERP features."
+    },
+    {
+      "name": "Content Gap Scan",
+      "desc": "Compare top 5 competitors for missing clusters."
+    },
+    {
+      "name": "Internal Link Atlas",
+      "desc": "Suggest link targets with anchor variations."
+    }
+  ]
+}

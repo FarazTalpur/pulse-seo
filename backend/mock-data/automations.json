@@ -1,0 +1,28 @@
+{
+  "automations": [
+    {
+      "name": "Weekly technical crawl",
+      "trigger": "Every Wed · 7:00 AM",
+      "status": "Active",
+      "owner": "Faraz"
+    },
+    {
+      "name": "Content decay watchlist",
+      "trigger": "Daily · 9:00 AM",
+      "status": "Active",
+      "owner": "Nina"
+    },
+    {
+      "name": "SERP volatility sweep",
+      "trigger": "Every Mon · 6:00 AM",
+      "status": "Paused",
+      "owner": "Ravi"
+    }
+  ],
+  "recipes": [
+    "Refresh pages with >15% traffic decay",
+    "Generate internal link clusters for top 50 pages",
+    "Re-score Core Web Vitals weekly",
+    "Send alert when keyword slips 3+ positions"
+  ]
+}

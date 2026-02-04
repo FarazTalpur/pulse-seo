@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b0f16;
+  --foreground: #e6ecf6;
+  --card: #121826;
+  --muted: #97a4b8;
+  --accent: #6cf6ff;
+  --accent-2: #9b7bff;
+  --accent-3: #ffb86b;
+  --stroke: #1f2a3d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-space-grotesk);
+  --font-serif: var(--font-fraunces);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: radial-gradient(1200px 800px at 15% 10%, #1a2340 0%, transparent 60%),
+    radial-gradient(900px 700px at 85% -10%, #2b1d45 0%, transparent 55%),
+    #0b0f16;
+  color: var(--foreground);
+  font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+::selection {
+  background: #9b7bff;
+  color: #0b0f16;
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #6cf6ff 0%, #9b7bff 45%, #ffb86b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glass {
+  background: linear-gradient(180deg, rgba(18, 24, 38, 0.75) 0%, rgba(12, 15, 22, 0.75) 100%);
+  border: 1px solid rgba(108, 246, 255, 0.12);
+  box-shadow: 0 24px 80px rgba(3, 7, 18, 0.55);
+}
+
+.grid-mask {
+  background-image: linear-gradient(rgba(108, 246, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108, 246, 255, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9) 0%, transparent 70%);
+}
+
+.noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+@keyframes floaty {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-30%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(60%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.floaty {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, rgba(108, 246, 255, 0.25), transparent 80%);
+  animation: shimmer 5s ease-in-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease-in-out infinite, pulse 1.8s ease-in-out infinite;
+}

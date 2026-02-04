@@ -1,0 +1,433 @@
+// Prisma schema for PulseSEO backend
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Multi-tenancy & identity
+
+model User {
+  id            String             @id @default(cuid())
+  email         String             @unique
+  passwordHash  String             @map("password_hash")
+  name          String?
+  avatarUrl     String?            @map("avatar_url")
+  emailVerified Boolean            @default(false) @map("email_verified")
+  organizationMemberships UserOrganization[]
+  sessions      Session[]
+  auditRuns     AuditRun[]
+  contentBriefs ContentBrief[]
+  automations   Automation[]
+  notifications Notification[]
+  settings      Setting[]
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+  deletedAt     DateTime?          @map("deleted_at")
+
+  @@index([email])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Organization {
+  id                    String           @id @default(cuid())
+  name                  String
+  slug                  String           @unique
+  logoUrl               String?          @map("logo_url")
+  stripeCustomerId      String?          @unique @map("stripe_customer_id")
+  stripeSubscriptionId  String?          @map("stripe_subscription_id")
+  subscriptionStatus    String?          @map("subscription_status")
+  members               UserOrganization[]
+  projects              Project[]
+  integrations          Integration[]
+  automations           Automation[]
+  reports               Report[]
+  notifications         Notification[]
+  settings              Setting[]
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+  deletedAt             DateTime?        @map("deleted_at")
+
+  @@index([slug])
+  @@index([deletedAt])
+  @@map("organizations")
+}
+
+model UserOrganization {
+  id             String        @id @default(cuid())
+  userId         String        @map("user_id")
+  organizationId String        @map("organization_id")
+  role           String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+  @@map("user_organizations")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// Projects
+
+model Project {
+  id              String           @id @default(cuid())
+  organizationId  String           @map("organization_id")
+  name            String
+  domain          String
+  baseUrl         String?          @map("base_url")
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  auditRuns       AuditRun[]
+  keywords        Keyword[]
+  keywordClusters KeywordCluster[]
+  serpSnapshots   SerpSnapshot[]
+  contentBriefs   ContentBrief[]
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+
+  @@index([organizationId])
+  @@index([domain])
+  @@index([deletedAt])
+  @@map("projects")
+}
+
+// Audit domain
+
+model AuditRun {
+  id          String       @id @default(cuid())
+  projectId   String       @map("project_id")
+  userId      String?      @map("user_id")
+  status      String
+  score       Int?
+  issuesCount Int          @default(0) @map("issues_count")
+  site        String?
+  startedAt   DateTime?    @map("started_at")
+  completedAt DateTime?    @map("completed_at")
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  issues      AuditIssue[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
+
+  @@index([projectId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("audit_runs")
+}
+
+model IssueCategory {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  slug        String       @unique
+  description String?
+  color       String?
+  issues      AuditIssue[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@map("issue_categories")
+}
+
+model AuditIssue {
+  id          String        @id @default(cuid())
+  auditRunId  String        @map("audit_run_id")
+  categoryId  String?       @map("category_id")
+  severity    String
+  title       String
+  description String?
+  url         String?
+  recommendation String?
+  auditRun    AuditRun      @relation(fields: [auditRunId], references: [id], onDelete: Cascade)
+  category    IssueCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  resolvedAt  DateTime?     @map("resolved_at")
+
+  @@index([auditRunId])
+  @@index([severity])
+  @@index([categoryId])
+  @@index([resolvedAt])
+  @@map("audit_issues")
+}
+
+// Keyword & SERP
+
+model KeywordCluster {
+  id        String    @id @default(cuid())
+  projectId String    @map("project_id")
+  name      String
+  intent    String?
+  volume    Int?
+  difficulty Int?
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  keywords  Keyword[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([projectId])
+  @@index([deletedAt])
+  @@map("keyword_clusters")
+}
+
+model Keyword {
+  id               String         @id @default(cuid())
+  projectId        String         @map("project_id")
+  clusterId        String?        @map("cluster_id")
+  keyword          String
+  volume           Int?
+  difficulty       Int?
+  currentPosition  Int?           @map("current_position")
+  trend            String?
+  project          Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  cluster          KeywordCluster? @relation(fields: [clusterId], references: [id], onDelete: SetNull)
+  serpSnapshots    SerpSnapshot[] @relation("KeywordToSerp")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  deletedAt        DateTime?      @map("deleted_at")
+
+  @@index([projectId])
+  @@index([clusterId])
+  @@index([keyword])
+  @@index([deletedAt])
+  @@map("keywords")
+}
+
+model SerpSnapshot {
+  id         String   @id @default(cuid())
+  projectId  String   @map("project_id")
+  keywordId  String?  @map("keyword_id")
+  keyword    String
+  position   Int?
+  url        String?
+  competitors Json?
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  keywordRel Keyword? @relation("KeywordToSerp", fields: [keywordId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([projectId])
+  @@index([keywordId])
+  @@index([keyword])
+  @@index([createdAt])
+  @@map("serp_snapshots")
+}
+
+// Content briefs
+
+model ContentBrief {
+  id        String        @id @default(cuid())
+  projectId String        @map("project_id")
+  userId    String?       @map("user_id")
+  title     String
+  type      String?
+  status    String
+  owner     String?
+  dueDate   DateTime?     @map("due_date")
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sections  BriefSection[]
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+  deletedAt DateTime?     @map("deleted_at")
+
+  @@index([projectId])
+  @@index([status])
+  @@index([userId])
+  @@index([deletedAt])
+  @@map("content_briefs")
+}
+
+model BriefSection {
+  id        String       @id @default(cuid())
+  briefId   String       @map("brief_id")
+  type      String
+  title     String?
+  content   String
+  order     Int          @default(0)
+  brief     ContentBrief @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  @@index([briefId])
+  @@index([order])
+  @@map("brief_sections")
+}
+
+// Reports
+
+model ReportTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  config      Json
+  reports     Report[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([deletedAt])
+  @@map("report_templates")
+}
+
+model Report {
+  id             String         @id @default(cuid())
+  organizationId String         @map("organization_id")
+  templateId     String?        @map("template_id")
+  name           String
+  cadence        String?
+  recipients     String?
+  status         String
+  fileUrl        String?        @map("file_url")
+  fileType       String?        @map("file_type")
+  scheduledAt    DateTime?      @map("scheduled_at")
+  generatedAt    DateTime?      @map("generated_at")
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  template       ReportTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([deletedAt])
+  @@map("reports")
+}
+
+// Automations
+
+model Automation {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  userId         String?       @map("user_id")
+  name           String
+  trigger        String
+  triggerType    String        @map("trigger_type")
+  status         String
+  owner          String?
+  config         Json?
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  runs           AutomationRun[]
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  deletedAt      DateTime?     @map("deleted_at")
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([userId])
+  @@index([deletedAt])
+  @@map("automations")
+}
+
+model AutomationRun {
+  id           String      @id @default(cuid())
+  automationId String      @map("automation_id")
+  status       String
+  startedAt    DateTime?   @map("started_at")
+  completedAt  DateTime?   @map("completed_at")
+  errorMessage String?     @map("error_message")
+  result       Json?
+  automation   Automation  @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@index([automationId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("automation_runs")
+}
+
+// Integrations
+
+model Integration {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  type           String
+  name           String
+  status         String
+  owner          String?
+  accessToken    String?       @map("access_token")
+  refreshToken   String?       @map("refresh_token")
+  tokenExpiresAt DateTime?     @map("token_expires_at")
+  config         Json?
+  lastSyncedAt   DateTime?     @map("last_synced_at")
+  syncError      String?       @map("sync_error")
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  deletedAt      DateTime?     @map("deleted_at")
+
+  @@unique([organizationId, type])
+  @@index([organizationId])
+  @@index([type])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("integrations")
+}
+
+// Notifications
+
+model Notification {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  userId         String?       @map("user_id")
+  type           String
+  level          String?
+  title          String
+  message        String?
+  link           String?
+  read           Boolean       @default(false)
+  readAt         DateTime?     @map("read_at")
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model Setting {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  userId         String?       @map("user_id")
+  key            String
+  value          String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  @@unique([organizationId, userId, key])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("settings")
+}
+

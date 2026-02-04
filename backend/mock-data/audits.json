@@ -1,0 +1,37 @@
+{
+  "issueBuckets": [
+    { "label": "Critical", "count": 24, "color": "#ff6b6b" },
+    { "label": "High", "count": 52, "color": "#ffb86b" },
+    { "label": "Medium", "count": 66, "color": "#6cf6ff" },
+    { "label": "Low", "count": 104, "color": "#9b7bff" }
+  ],
+  "auditRuns": [
+    {
+      "site": "meridianlabs.com",
+      "status": "Completed",
+      "issues": 142,
+      "score": 92,
+      "date": "Today 07:12"
+    },
+    {
+      "site": "meridianlabs.io",
+      "status": "Running",
+      "issues": 38,
+      "score": 88,
+      "date": "Today 06:48"
+    },
+    {
+      "site": "studio.meridian.com",
+      "status": "Queued",
+      "issues": 0,
+      "score": 0,
+      "date": "Tomorrow 07:00"
+    }
+  ],
+  "recommendations": [
+    "Fix duplicate H1 tags on 18 pages",
+    "Add schema markup to /case-studies",
+    "Resolve 12 redirect chains",
+    "Compress hero images on /pricing"
+  ]
+}

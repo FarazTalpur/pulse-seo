@@ -1,0 +1,131 @@
+{
+  "stats": [
+    { "label": "Visibility score", "value": "92", "note": "+6 vs last week" },
+    { "label": "Open issues", "value": "142", "note": "24 critical" },
+    { "label": "Potential lift", "value": "$48k", "note": "Forecasted" },
+    { "label": "Active briefs", "value": "12", "note": "5 due today" }
+  ],
+  "alerts": [
+    {
+      "title": "Cannibalization detected",
+      "detail": "/blog/seo-guide vs /blog/seo-checklist",
+      "time": "12m ago",
+      "level": "high"
+    },
+    {
+      "title": "Core Web Vitals dip",
+      "detail": "LCP > 3.2s on /pricing",
+      "time": "1h ago",
+      "level": "medium"
+    },
+    {
+      "title": "Index coverage",
+      "detail": "48 pages excluded (noindex)",
+      "time": "3h ago",
+      "level": "low"
+    }
+  ],
+  "tasks": [
+    {
+      "title": "Fix duplicate title tags",
+      "detail": "/collections/enterprise",
+      "owner": "Nina",
+      "status": "In progress"
+    },
+    {
+      "title": "Refresh content brief",
+      "detail": "Cluster: predictive analytics",
+      "owner": "Ravi",
+      "status": "Queued"
+    },
+    {
+      "title": "Add internal links",
+      "detail": "/case-studies → /pricing",
+      "owner": "Alex",
+      "status": "Review"
+    }
+  ],
+  "opportunities": [
+    {
+      "page": "/pricing",
+      "gain": "+3.4k clicks",
+      "reason": "Intent mismatch"
+    },
+    {
+      "page": "/templates",
+      "gain": "+2.1k clicks",
+      "reason": "Missing FAQs"
+    },
+    {
+      "page": "/blog/seo-automation",
+      "gain": "+1.7k clicks",
+      "reason": "Outdated schema"
+    }
+  ],
+  "briefs": [
+    {
+      "title": "Enterprise SEO automation",
+      "status": "Draft ready",
+      "eta": "Today"
+    },
+    {
+      "title": "Multi-location SEO checklist",
+      "status": "Researching SERP",
+      "eta": "Tomorrow"
+    },
+    {
+      "title": "Content decay recovery",
+      "status": "Queued",
+      "eta": "Thursday"
+    }
+  ],
+  "clusters": [
+    {
+      "keyword": "seo automation",
+      "volume": "12.4k",
+      "difficulty": "34",
+      "intent": "Commercial",
+      "trend": "+12%"
+    },
+    {
+      "keyword": "technical seo audit",
+      "volume": "8.9k",
+      "difficulty": "41",
+      "intent": "Transactional",
+      "trend": "+7%"
+    },
+    {
+      "keyword": "content decay",
+      "volume": "3.1k",
+      "difficulty": "28",
+      "intent": "Informational",
+      "trend": "+19%"
+    },
+    {
+      "keyword": "seo workflow",
+      "volume": "5.2k",
+      "difficulty": "36",
+      "intent": "Commercial",
+      "trend": "+4%"
+    }
+  ],
+  "automations": [
+    {
+      "title": "Weekly technical crawl",
+      "detail": "Runs every Wed at 7:00 AM"
+    },
+    {
+      "title": "Content decay watchlist",
+      "detail": "Alerts for pages losing >15% traffic"
+    },
+    {
+      "title": "SERP volatility monitor",
+      "detail": "Tracks top 30 keywords daily"
+    }
+  ],
+  "integrations": [
+    { "title": "Google Search Console", "status": "Connected" },
+    { "title": "GA4 Analytics", "status": "Connected" },
+    { "title": "Notion", "status": "Syncing" }
+  ]
+}

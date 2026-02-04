@@ -1,0 +1,12 @@
+import { Controller, Get } from '@nestjs/common';
+import { AuditsService } from './audits.service';
+
+@Controller('audits')
+export class AuditsController {
+  constructor(private readonly auditsService: AuditsService) {}
+
+  @Get()
+  getAudits() {
+    return this.auditsService.getAudits();
+  }
+}

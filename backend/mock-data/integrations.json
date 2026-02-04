@@ -1,0 +1,14 @@
+{
+  "integrations": [
+    { "name": "Google Search Console", "status": "Connected", "owner": "Faraz" },
+    { "name": "GA4 Analytics", "status": "Connected", "owner": "Nina" },
+    { "name": "Ahrefs", "status": "Not connected", "owner": "—" },
+    { "name": "Notion", "status": "Syncing", "owner": "Ravi" }
+  ],
+  "destinations": [
+    "Slack alerts",
+    "Notion brief publishing",
+    "Jira sprint tasks",
+    "Email summary"
+  ]
+}

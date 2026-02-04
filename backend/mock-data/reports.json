@@ -1,0 +1,45 @@
+{
+  "reports": [
+    {
+      "name": "Weekly executive summary",
+      "cadence": "Every Monday",
+      "recipients": "leadership@meridian.com",
+      "status": "Scheduled"
+    },
+    {
+      "name": "Content decay watchlist",
+      "cadence": "Every Thursday",
+      "recipients": "content@meridian.com",
+      "status": "Scheduled"
+    },
+    {
+      "name": "Monthly SEO health",
+      "cadence": "1st of month",
+      "recipients": "seo@meridian.com",
+      "status": "Paused"
+    }
+  ],
+  "exports": [
+    {
+      "name": "Q1 visibility forecast",
+      "type": "PDF",
+      "time": "2 hours ago"
+    },
+    {
+      "name": "Sprint audit report",
+      "type": "Slides",
+      "time": "Yesterday"
+    },
+    {
+      "name": "Keyword cluster export",
+      "type": "CSV",
+      "time": "Feb 1"
+    }
+  ],
+  "templates": [
+    "Leadership SEO pulse",
+    "Technical sprint recap",
+    "Content performance brief",
+    "Paid vs organic overlap"
+  ]
+}

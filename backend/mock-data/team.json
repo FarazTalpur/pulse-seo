@@ -1,0 +1,14 @@
+{
+  "team": [
+    { "name": "Faraz Talpur", "role": "SEO Lead", "status": "Active" },
+    { "name": "Nina Patel", "role": "Technical SEO", "status": "Active" },
+    { "name": "Ravi Mehta", "role": "Content Strategist", "status": "Active" },
+    { "name": "Mia Chen", "role": "Analyst", "status": "Invited" }
+  ],
+  "roles": [
+    "Admin",
+    "SEO Analyst",
+    "Content Strategist",
+    "Read-only"
+  ]
+}

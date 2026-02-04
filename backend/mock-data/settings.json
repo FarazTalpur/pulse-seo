@@ -1,0 +1,14 @@
+{
+  "settings": [
+    { "label": "Default reporting cadence", "value": "Weekly" },
+    { "label": "Primary domain", "value": "meridianlabs.com" },
+    { "label": "Alert sensitivity", "value": "Medium" },
+    { "label": "Timezone", "value": "Gulf Standard Time" }
+  ],
+  "notifications": [
+    "Ranking drop alerts",
+    "Content decay notifications",
+    "Audit completion",
+    "SERP volatility"
+  ]
+}
