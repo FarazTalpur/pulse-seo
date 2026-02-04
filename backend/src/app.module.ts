@@ -15,6 +15,7 @@ import { SummaryModule } from './summary/summary.module';
 import { MockDataService } from './shared/mock-data.service';
 import { ProjectsModule } from './projects/projects.module';
 import { AutomationJobsModule } from './automation-jobs/automation-jobs.module';
+import { BillingModule } from './billing/billing.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AutomationJobsModule } from './automation-jobs/automation-jobs.module';
     AutomationsModule,
     AutomationJobsModule,
     IntegrationsModule,
+    BillingModule,
     TeamModule,
     SettingsModule,
     SummaryModule,
