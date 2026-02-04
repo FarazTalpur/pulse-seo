@@ -3,13 +3,23 @@
 import EmptyState from "@/components/empty-state";
 import { postClientJson } from "@/lib/client-api";
 import { useBriefs } from "@/lib/hooks";
+import { useSession } from "next-auth/react";
 import { useSWRConfig } from "swr";
 
 export default function BriefsPage() {
   const { data, error, isLoading } = useBriefs();
+  const { data: session } = useSession();
   const { mutate } = useSWRConfig();
 
   const handleCreateBrief = async () => {
+    if (!session?.user?.organizationId) {
+      alert("No organization available for this account.");
+      return;
+    }
+    if (!session.accessToken) {
+      alert("No access token available. Please sign in again.");
+      return;
+    }
     const projectId = window.prompt("Project ID for this brief");
     if (!projectId) {
       return;
@@ -17,13 +27,17 @@ export default function BriefsPage() {
 
     const title = window.prompt("Brief title", "New content brief") ?? "New content brief";
 
-    await postClientJson("/v1/briefs", {
-      projectId,
-      title,
-      status: "draft",
-      type: "guide",
-      owner: "Content Team",
-    });
+    await postClientJson(
+      "/v1/briefs",
+      {
+        projectId,
+        title,
+        status: "draft",
+        type: "guide",
+        owner: "Content Team",
+      },
+      session.accessToken
+    );
 
     await mutate("/v1/briefs");
   };

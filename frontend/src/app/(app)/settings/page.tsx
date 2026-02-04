@@ -16,6 +16,10 @@ export default function SettingsPage() {
       alert("No organization available for this account.");
       return;
     }
+    if (!session.accessToken) {
+      alert("No access token available. Please sign in again.");
+      return;
+    }
 
     const key = window.prompt("Setting key");
     if (!key) {
@@ -27,11 +31,15 @@ export default function SettingsPage() {
       return;
     }
 
-    await patchClientJson("/v1/settings", {
-      organizationId: session.user.organizationId,
-      key,
-      value,
-    });
+    await patchClientJson(
+      "/v1/settings",
+      {
+        organizationId: session.user.organizationId,
+        key,
+        value,
+      },
+      session.accessToken
+    );
 
     await mutate("/v1/settings");
   };

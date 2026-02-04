@@ -1,6 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 
 @Controller('reports')
 export class ReportsController {
@@ -12,17 +14,20 @@ export class ReportsController {
   }
 
   @Post()
-  createReport(@Body() dto: CreateReportDto) {
-    return this.reportsService.createReport(dto);
+  @UseGuards(JwtAuthGuard)
+  createReport(@Request() req: AuthenticatedRequest, @Body() dto: CreateReportDto) {
+    return this.reportsService.createReport(dto, req.user.organizationId);
   }
 
   @Post(':id/generate')
-  generateReport(@Param('id') id: string) {
-    return this.reportsService.generateReport(id);
+  @UseGuards(JwtAuthGuard)
+  generateReport(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.reportsService.generateReport(id, req.user.organizationId);
   }
 
   @Delete(':id')
-  deleteReport(@Param('id') id: string) {
-    return this.reportsService.deleteReport(id);
+  @UseGuards(JwtAuthGuard)
+  deleteReport(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.reportsService.deleteReport(id, req.user.organizationId);
   }
 }

@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Request, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { UpsertSettingDto } from './dto/upsert-setting.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 
 @Controller('settings')
 export class SettingsController {
@@ -12,7 +14,8 @@ export class SettingsController {
   }
 
   @Patch()
-  upsertSetting(@Body() dto: UpsertSettingDto) {
-    return this.settingsService.upsertSetting(dto);
+  @UseGuards(JwtAuthGuard)
+  upsertSetting(@Request() req: AuthenticatedRequest, @Body() dto: UpsertSettingDto) {
+    return this.settingsService.upsertSetting(dto, req.user.organizationId, req.user.userId);
   }
 }

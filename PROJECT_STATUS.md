@@ -30,6 +30,7 @@ This document captures what has been implemented and what is still pending so wo
   - `GET /v1/auth/me` (JWT protected).
   - JWT strategy + guard.
 - Uses `JWT_SECRET` + `JWT_EXPIRES_IN`.
+- Mutation endpoints now require JWT auth and enforce org scope from the token.
 
 ### Backend Read APIs (Mock-backed)
 All these read from `backend/mock-data/*.json` via `MockDataService`:
@@ -69,11 +70,13 @@ All these read from `backend/mock-data/*.json` via `MockDataService`:
 - Client data hooks now call backend:
   - `frontend/src/lib/hooks.ts` switched to `/v1/*` endpoints.
   - `frontend/src/lib/client-api.ts` uses `NEXT_PUBLIC_BACKEND_URL`.
+- Mutation requests now include `Authorization: Bearer` when a session token is available.
 - Basic UI actions wired (prompt-driven):
   - `New brief` → `POST /v1/briefs`
   - `New automation` → `POST /v1/automations`
   - `Invite teammate` → `POST /v1/team`
   - `Save changes` (Settings) → `PATCH /v1/settings`
+ - Frontend `.env.example` added for `BACKEND_URL` + `NEXT_PUBLIC_BACKEND_URL`.
 
 ### Testing & Observability
 - Backend:
@@ -91,10 +94,10 @@ All these read from `backend/mock-data/*.json` via `MockDataService`:
 - Optional: seed mock domain entities (audits, briefs, reports) to align with UI cards.
 
 ### 2. Auth Hardening & Access Control
-- Add guards for org/project scoping and role checks in NestJS controllers.
-- Ensure all mutation endpoints require JWT auth.
-- Enforce `organizationId` based on JWT context rather than client-supplied.
-- Add `/v1/auth/refresh` if you want token refresh in NextAuth.
+- [x] Require JWT auth on mutation endpoints.
+- [x] Enforce `organizationId` from JWT context on mutations + org/project scoping.
+- [ ] Add role checks in NestJS controllers.
+- [ ] Add `/v1/auth/refresh` if you want token refresh in NextAuth.
 
 ### 3. Replace Mock Read APIs with Prisma
 Currently all reads for UI come from JSON fixtures. Replace with Prisma queries:
@@ -133,7 +136,7 @@ Currently all reads for UI come from JSON fixtures. Replace with Prisma queries:
 - Implement filtering/sorting/pagination across data tables.
 
 ### 9. CI/CD + Env Management
-- Add `.env.example` for frontend (currently only local).
+- [x] Add `.env.example` for frontend (currently only local).
 - Add deployment scripts / GH Actions.
 - Add Dockerfiles for production if desired (only compose for infra exists).
 
@@ -158,6 +161,7 @@ Currently all reads for UI come from JSON fixtures. Replace with Prisma queries:
    - `npm run dev`
 
 ## Notes / Known Caveats
-- JWT auth is not yet enforced on all endpoints; add guards before production.
+- JWT auth is enforced on mutation endpoints; read endpoints still use mock data and stay open.
+- Role-based checks are not yet enforced on mutations.
 - Integrations and billing are placeholders; use for scaffolding only.
 - The Prisma schema is broad; some tables may not be used until reads are wired.

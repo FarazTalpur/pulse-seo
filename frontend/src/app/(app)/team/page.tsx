@@ -16,6 +16,10 @@ export default function TeamPage() {
       alert("No organization available for this account.");
       return;
     }
+    if (!session.accessToken) {
+      alert("No access token available. Please sign in again.");
+      return;
+    }
 
     const email = window.prompt("Invite email address");
     if (!email) {
@@ -25,12 +29,16 @@ export default function TeamPage() {
     const name = window.prompt("Name (optional)") ?? undefined;
     const role = window.prompt("Role (admin/analyst/viewer)", "analyst") ?? "analyst";
 
-    await postClientJson("/v1/team", {
-      organizationId: session.user.organizationId,
-      email,
-      name,
-      role,
-    });
+    await postClientJson(
+      "/v1/team",
+      {
+        organizationId: session.user.organizationId,
+        email,
+        name,
+        role,
+      },
+      session.accessToken
+    );
 
     await mutate("/v1/team");
   };
