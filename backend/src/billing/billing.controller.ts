@@ -3,6 +3,9 @@ import { BillingService } from './billing.service';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { ROLE_ADMIN } from '../auth/constants/roles';
 
 @Controller('billing')
 export class BillingController {
@@ -15,13 +18,15 @@ export class BillingController {
   }
 
   @Post('subscription')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_ADMIN)
   updateSubscription(@Request() req: AuthenticatedRequest, @Body() dto: UpdateSubscriptionDto) {
     return this.billingService.updateSubscription(dto, req.user.organizationId);
   }
 
   @Post('portal')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_ADMIN)
   createPortal(@Request() req: AuthenticatedRequest) {
     return this.billingService.createPortalSession(req.user.organizationId);
   }

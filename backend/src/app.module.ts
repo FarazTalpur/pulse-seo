@@ -12,7 +12,6 @@ import { IntegrationsModule } from './integrations/integrations.module';
 import { TeamModule } from './team/team.module';
 import { SettingsModule } from './settings/settings.module';
 import { SummaryModule } from './summary/summary.module';
-import { MockDataService } from './shared/mock-data.service';
 import { ProjectsModule } from './projects/projects.module';
 import { AutomationJobsModule } from './automation-jobs/automation-jobs.module';
 import { BillingModule } from './billing/billing.module';
@@ -39,8 +38,8 @@ import { BillingModule } from './billing/billing.module';
     SettingsModule,
     SummaryModule,
   ],
-  providers: [MockDataService],
-  exports: [MockDataService],
+  providers: [],
+  exports: [],
 })
 export class AppModule {}
 

@@ -1,5 +1,4 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { MockDataService } from '../shared/mock-data.service';
 import { PrismaService } from '../database/prisma.service';
 import { CreateIntegrationDto } from './dto/create-integration.dto';
 import { requireOrganizationId } from '../common/utils/require-organization';
@@ -7,12 +6,27 @@ import { requireOrganizationId } from '../common/utils/require-organization';
 @Injectable()
 export class IntegrationsService {
   constructor(
-    private readonly mockDataService: MockDataService,
     private readonly prisma: PrismaService,
   ) {}
 
-  getIntegrations() {
-    return this.mockDataService.readMockData('integrations');
+  async getIntegrations(organizationId: string | null) {
+    const orgId = requireOrganizationId(organizationId);
+    const integrations = await this.prisma.integration.findMany({
+      where: {
+        deletedAt: null,
+        organizationId: orgId,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      integrations: integrations.map((integration) => ({
+        name: integration.name,
+        status: integration.status,
+        owner: integration.owner ?? '—',
+      })),
+      destinations: ['Slack alerts', 'Notion brief publishing', 'Jira sprint tasks', 'Email summary'],
+    };
   }
 
   createIntegration(dto: CreateIntegrationDto, organizationId: string | null) {

@@ -1,19 +1,5 @@
-import { NextResponse } from "next/server";
-import { readMock } from "@/lib/mock";
-
-type AuditsData = {
-  issueBuckets: Array<{ label: string; count: number; color: string }>;
-  auditRuns: Array<{
-    site: string;
-    status: string;
-    issues: number;
-    score: number;
-    date: string;
-  }>;
-  recommendations: string[];
-};
+import { proxyGet } from "@/lib/server-api";
 
 export async function GET() {
-  const data = await readMock<AuditsData>("audits.json");
-  return NextResponse.json(data);
+  return proxyGet("/v1/audits");
 }

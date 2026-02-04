@@ -1,12 +1,5 @@
-import { NextResponse } from "next/server";
-import { readMock } from "@/lib/mock";
-
-type SettingsData = {
-  settings: Array<{ label: string; value: string }>;
-  notifications: string[];
-};
+import { proxyGet } from "@/lib/server-api";
 
 export async function GET() {
-  const data = await readMock<SettingsData>("settings.json");
-  return NextResponse.json(data);
+  return proxyGet("/v1/settings");
 }

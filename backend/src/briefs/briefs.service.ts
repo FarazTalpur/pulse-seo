@@ -1,19 +1,39 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { MockDataService } from '../shared/mock-data.service';
 import { PrismaService } from '../database/prisma.service';
 import { CreateBriefDto } from './dto/create-brief.dto';
 import { UpdateBriefDto } from './dto/update-brief.dto';
 import { requireOrganizationId } from '../common/utils/require-organization';
+import { formatDateLabel } from '../common/utils/formatting';
 
 @Injectable()
 export class BriefsService {
-  constructor(
-    private readonly mockDataService: MockDataService,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  getBriefs() {
-    return this.mockDataService.readMockData('briefs');
+  async getBriefs(organizationId: string | null) {
+    const orgId = requireOrganizationId(organizationId);
+    const briefs = await this.prisma.contentBrief.findMany({
+      where: {
+        deletedAt: null,
+        project: {
+          organizationId: orgId,
+        },
+      },
+      include: {
+        user: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      briefs: briefs.map((brief) => ({
+        title: brief.title,
+        type: brief.type ?? 'General',
+        status: brief.status,
+        owner: brief.owner ?? brief.user?.name ?? 'Unassigned',
+        due: formatDateLabel(brief.dueDate),
+      })),
+      playbooks: [],
+    };
   }
 
   async createBrief(dto: CreateBriefDto, organizationId: string | null, userId: string) {

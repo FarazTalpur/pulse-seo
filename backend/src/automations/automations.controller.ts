@@ -4,18 +4,23 @@ import { CreateAutomationDto } from './dto/create-automation.dto';
 import { UpdateAutomationDto } from './dto/update-automation.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { WRITE_ROLES } from '../auth/constants/roles';
 
 @Controller('automations')
 export class AutomationsController {
   constructor(private readonly automationsService: AutomationsService) {}
 
   @Get()
-  getAutomations() {
-    return this.automationsService.getAutomations();
+  @UseGuards(JwtAuthGuard)
+  getAutomations(@Request() req: AuthenticatedRequest) {
+    return this.automationsService.getAutomations(req.user.organizationId);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...WRITE_ROLES)
   createAutomation(@Request() req: AuthenticatedRequest, @Body() dto: CreateAutomationDto) {
     return this.automationsService.createAutomation(
       dto,
@@ -25,7 +30,8 @@ export class AutomationsController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...WRITE_ROLES)
   updateAutomation(
     @Request() req: AuthenticatedRequest,
     @Param('id') id: string,
@@ -35,13 +41,15 @@ export class AutomationsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...WRITE_ROLES)
   archiveAutomation(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.automationsService.archiveAutomation(id, req.user.organizationId);
   }
 
   @Post(':id/run')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...WRITE_ROLES)
   runAutomation(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.automationsService.runAutomation(id, req.user.organizationId);
   }

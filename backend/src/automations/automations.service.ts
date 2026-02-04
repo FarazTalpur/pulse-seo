@@ -1,5 +1,4 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { MockDataService } from '../shared/mock-data.service';
 import { PrismaService } from '../database/prisma.service';
 import { CreateAutomationDto } from './dto/create-automation.dto';
 import { UpdateAutomationDto } from './dto/update-automation.dto';
@@ -9,13 +8,34 @@ import { requireOrganizationId } from '../common/utils/require-organization';
 @Injectable()
 export class AutomationsService {
   constructor(
-    private readonly mockDataService: MockDataService,
     private readonly prisma: PrismaService,
     private readonly automationJobs: AutomationJobsService,
   ) {}
 
-  getAutomations() {
-    return this.mockDataService.readMockData('automations');
+  async getAutomations(organizationId: string | null) {
+    const orgId = requireOrganizationId(organizationId);
+    const automations = await this.prisma.automation.findMany({
+      where: {
+        deletedAt: null,
+        organizationId: orgId,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      automations: automations.map((automation) => ({
+        name: automation.name,
+        trigger: automation.trigger,
+        status: automation.status,
+        owner: automation.owner ?? 'Unassigned',
+      })),
+      recipes: [
+        'Refresh pages with >15% traffic decay',
+        'Generate internal link clusters for top 50 pages',
+        'Re-score Core Web Vitals weekly',
+        'Send alert when keyword slips 3+ positions',
+      ],
+    };
   }
 
   createAutomation(dto: CreateAutomationDto, organizationId: string | null, userId: string) {

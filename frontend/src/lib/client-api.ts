@@ -1,9 +1,15 @@
 "use client";
 
-export async function fetchClientJson<T>(path: string): Promise<T> {
+export async function fetchClientJson<T>(
+  path: string,
+  accessToken?: string
+): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
   const url = baseUrl ? `${baseUrl}${path}` : path;
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: buildHeaders(accessToken),
+  });
   if (!res.ok) {
     throw new Error(`Request failed: ${res.status} ${res.statusText}`);
   }
